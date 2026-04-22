@@ -1,0 +1,28 @@
+[project]
+name = "ai-read-image"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.136.0",
+    "openai>=2.32.0",
+    "paddleocr>=3.5.0",
+    "paddlepaddle>=3.3.1",
+    "paddlex[ocr]>=3.5.1",
+    "pydantic-settings>=2.14.0",
+    "pytest>=9.0.3",
+    "torch[cpu]>=2.11.0",
+    "transformers>=5.5.4",
+    "uvicorn>=0.45.0",
+]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
