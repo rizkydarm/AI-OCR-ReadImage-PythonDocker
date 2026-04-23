@@ -34,7 +34,7 @@ COPY --from=builder /app/.venv /app/.venv
 COPY app ./app
 
 # Add the virtual environment's bin to PATH
-ENV PATH="/home/rizkyeky/python-projects/ai_read_image/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Expose the port FastAPI will run on
 EXPOSE 8000
