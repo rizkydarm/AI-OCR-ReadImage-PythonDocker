@@ -10,15 +10,20 @@ dependencies = [
     "paddleocr>=3.5.0",
     "paddlepaddle>=3.3.1",
     "paddlex[ocr]>=3.5.1",
+    "pillow>=11.0.0",
     "pydantic-settings>=2.14.0",
     "pytest>=9.0.3",
     "torch[cpu]>=2.11.0",
+    "torchvision>=0.20.0",
     "transformers>=5.5.4",
     "uvicorn>=0.45.0",
 ]
 
 [tool.uv.sources]
 torch = [
+    { index = "pytorch-cpu" },
+]
+torchvision = [
     { index = "pytorch-cpu" },
 ]
 
