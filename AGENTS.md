@@ -74,3 +74,32 @@
 - When creating or updating files, output the file path followed by the code block.
 - Separate multiple files with `---`.
 - No explanatory text outside code blocks unless the user asks for it.
+
+---
+
+# PROJECT RULES
+
+## Stack & Tools
+- **Runtime**: Python 3.12+, FastAPI, PaddleOCR-VL 1.5
+- **Package Manager**: `uv` (use `uv sync`, NOT pip install)
+- **Dev Server**: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+- **Docker**: `docker build -t ai-ocr-backend .` && `docker run -p 8000:8000 ai-ocr-backend`
+
+## Key Commands
+```bash
+uv sync                           # Install dependencies
+uvicorn app.main:app --reload     # Run dev server (port 8000)
+curl -X POST http://localhost:8000/ocr -F "file=@image.jpg"  # Test OCR
+curl http://localhost:8000/health  # Health check
+```
+
+## API Contract
+- `POST /ocr` - multipart/form-data with `file` and optional `task`
+- `GET /health` - returns `{ "status": "healthy", "model_loaded": true }`
+- Response shape: `{ "success": bool, "text": string, "task": string, "processing_time": float }`
+
+## OCR Tasks
+`ocr` (default), `table`, `chart`, `formula`, `spotting`, `seal`
+
+## App Entry Point
+`app.main:app` - FastAPI application instance in `app/main.py`
