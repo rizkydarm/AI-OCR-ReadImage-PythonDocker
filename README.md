@@ -1,49 +1,47 @@
 # AI OCR Backend for n8n
 
-FastAPI backend service that extracts text from images using PaddleOCR-VL. Designed for seamless integration with n8n workflows.
+FastAPI backend service that extracts text from images using OCR.space API (primary) with EasyOCR fallback. Designed for seamless integration with n8n workflows.
 
 **Workflow**: Image → FastAPI Backend → Extracted Text (JSON)
 
 ## Architecture
 
 ```
-┌─────────┐    HTTP POST     ┌─────────────┐    PaddleOCR-VL    ┌────────┐
-│   n8n   │ ───────────────→ │  FastAPI    │ ─────────────────→ │  Text  │
-│         │   (image file)   │   Backend   │                    │ Output │
-└─────────┘                  └─────────────┘                    └────────┘
-                                    │
-                                    ↓
-                              JSON Response
-                           { "text": "..." }
+Image → FastAPI Backend → OCR.space API → Text (2.5s)
+                                ↓ (if rate limited)
+                        EasyOCR Fallback → Text (15-30s)
 ```
 
-## Planned API Endpoints
+## API Endpoints
 
 ### `POST /ocr`
 Extract text from an uploaded image.
 
 **Request**: `multipart/form-data`
 - `file`: Image file (JPG, PNG, etc.)
-- `task` (optional): OCR task type - `ocr` (default), `table`, `chart`, `formula`, `spotting`, `seal`
 
 **Response**: `application/json`
 ```json
 {
   "success": true,
   "text": "Extracted text content...",
-  "task": "ocr",
-  "processing_time": 1.23
+  "engine": "ocrspace",
+  "processing_time": 2.5
 }
 ```
 
 ### `GET /health`
-Health check endpoint for monitoring.
+Health check endpoint.
 
 **Response**:
 ```json
 {
   "status": "healthy",
-  "model_loaded": true
+  "engines": {
+    "ocrspace": "available",
+    "easyocr": "available"
+  },
+  "api_key_configured": true
 }
 ```
 
@@ -99,25 +97,22 @@ The response JSON will contain the extracted text in the `text` field.
 ## Technology Stack
 
 - **FastAPI** - Modern async web framework
-- **PaddleOCR-VL 1.5** - Vision-language OCR model
-- **Transformers** - Hugging Face inference
+- **OCR.space API** - Cloud OCR engine (primary)
+- **EasyOCR** - Local OCR engine (fallback)
 - **Uvicorn** - ASGI server
 - **Docker** - Containerization
 - **uv** - Fast Python package manager
 
-## Supported OCR Tasks
+## OCR Engines
 
-| Task | Description |
-|------|-------------|
-| `ocr` | General text recognition (default) |
-| `table` | Table structure recognition |
-| `chart` | Chart/graph recognition |
-| `formula` | Mathematical formula recognition |
-| `spotting` | Text spotting/detection |
-| `seal` | Seal/stamp recognition |
+| Engine | Speed | Reliability | Use Case |
+|--------|-------|-------------|----------|
+| **OCR.space API** | ~2.5s | Requires API key & internet | Primary (fast, accurate) |
+| **EasyOCR** | ~15-30s | Works offline | Fallback (no rate limits) |
 
 ## Requirements
 
 - Python 3.12+
-- 2GB+ RAM recommended for OCR model
-- CUDA optional (falls back to CPU)
+- OCR_SPACE_API_KEY environment variable
+- 512MB+ RAM (API mode) or 2GB+ (fallback mode)
+- Internet connection for primary OCR engine

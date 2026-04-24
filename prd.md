@@ -6,7 +6,7 @@
 **Integration Target**: n8n Workflow Automation Platform  
 
 ### Executive Summary
-Self-hostable FastAPI OCR microservice optimized for n8n workflows. Uses PaddleOCR-VL 1.5 for text extraction from images, tables, charts, formulas, and seals. Designed for zero-configuration deployment with a simple HTTP interface.
+Self-hostable FastAPI OCR microservice optimized for n8n workflows. Uses OCR.space API as primary engine (fast cloud OCR) with EasyOCR as local fallback. Designed for reliable text extraction with automatic failover.
 
 ---
 
@@ -16,25 +16,34 @@ Self-hostable FastAPI OCR microservice optimized for n8n workflows. Uses PaddleO
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR1 | Accept `multipart/form-data` image uploads via POST `/ocr` | MUST |
-| FR2 | Support 6 distinct OCR task modes: `ocr`, `table`, `chart`, `formula`, `spotting`, `seal` | MUST |
-| FR3 | Return consistent JSON response with extracted text, task type, success flag and processing time | MUST |
-| FR4 | Provide health check endpoint at GET `/health` that indicates model load status | MUST |
-| FR5 | Fallback gracefully to CPU inference when CUDA is not available | MUST |
-| FR6 | Support all common image formats: JPG, PNG, GIF, BMP, TIFF | SHOULD |
+| FR2 | Use OCR.space API as primary OCR engine | MUST |
+| FR3 | Auto-fallback to EasyOCR when API unavailable/rate-limited | MUST |
+| FR4 | Return JSON with extracted text, engine used, success flag, processing time | MUST |
+| FR5 | Provide health check endpoint at GET `/health` with engine statuses | MUST |
+| FR6 | Load API key from environment variable (OCR_SPACE_API_KEY) | MUST |
 
 ### Non-Functional Requirements
 | ID | Requirement | Target |
 |----|-------------|--------|
-| NFR1 | Cold start time (first request) | < 10 seconds |
-| NFR2 | Average OCR processing time per page | < 3 seconds on CPU, < 0.8s on GPU |
-| NFR3 | Minimum RAM requirement | 2GB |
-| NFR4 | Container image size | < 3GB |
+| NFR1 | OCR.space API response time | < 5 seconds |
+| NFR2 | EasyOCR fallback processing time | < 60 seconds on CPU |
+| NFR3 | Minimum RAM requirement | 512MB (API mode), 2GB (fallback mode) |
+| NFR4 | Container image size | < 1GB |
 | NFR5 | API uptime SLO | 99.5% |
 | NFR6 | Parallel request handling | Minimum 4 concurrent requests |
 
 ---
 
-## 🔌 API Specification
+## � Configuration
+
+### Environment Variables
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OCR_SPACE_API_KEY` | Yes | OCR.space API key (get free at https://ocr.space/OCRAPI) |
+
+---
+
+## � API Specification
 
 ### POST `/ocr`
 - **Headers**: `Content-Type: multipart/form-data`
@@ -42,14 +51,13 @@ Self-hostable FastAPI OCR microservice optimized for n8n workflows. Uses PaddleO
   | Field | Type | Required | Description |
   |-------|------|----------|-------------|
   | `file` | Binary | ✅ | Image file |
-  | `task` | String | ❌ | OCR mode (default: `ocr`) |
 
 - **Response Schema**:
   ```json
   {
     "success": "boolean",
     "text": "string",
-    "task": "string",
+    "engine": "string (ocrspace | easyocr | none)",
     "processing_time": "float (seconds)",
     "error": "string (only on failure)"
   }
@@ -60,7 +68,11 @@ Always returns HTTP 200:
 ```json
 {
   "status": "healthy / initializing / error",
-  "model_loaded": "boolean",
+  "engines": {
+    "ocrspace": "available / unavailable",
+    "easyocr": "available / unavailable"
+  },
+  "api_key_configured": "boolean",
   "uptime": "float (seconds)"
 }
 ```
@@ -100,12 +112,13 @@ Always returns HTTP 200:
 ---
 
 ## 🚀 Out of Scope (v1.0)
-- Authentication / API keys
+- Multiple OCR task modes (table, chart, formula, etc.)
+- Authentication / API keys for the backend itself
 - Rate limiting
 - Batch processing
 - Image preprocessing options
 - Persistent storage / queueing
-- Multi-language model selection
+- Multi-language selection
 - Webhook callbacks
 
 ---

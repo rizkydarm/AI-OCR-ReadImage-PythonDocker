@@ -80,7 +80,7 @@
 # PROJECT RULES
 
 ## Stack & Tools
-- **Runtime**: Python 3.12+, FastAPI, PaddleOCR-VL 1.5
+- **Runtime**: Python 3.12+, FastAPI, OCR.space API + EasyOCR
 - **Package Manager**: `uv` (use `uv sync`, NOT pip install)
 - **Dev Server**: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
 - **Docker**: `docker build -t ai-ocr-backend .` && `docker run -p 8000:8000 ai-ocr-backend`
@@ -95,12 +95,16 @@ curl http://localhost:8000/health  # Health check
 ```
 
 ## API Contract
-- `POST /ocr` - multipart/form-data with `file` and optional `task`
-- `GET /health` - returns `{ "status": "healthy", "model_loaded": true }`
-- Response shape: `{ "success": bool, "text": string, "task": string, "processing_time": float }`
+- `POST /ocr` - multipart/form-data with `file`
+- `GET /health` - returns `{ "status": "healthy", "engines": {...}, "api_key_configured": bool }`
+- Response shape: `{ "success": bool, "text": string, "engine": string, "processing_time": float }`
 
-## OCR Tasks
-`ocr` (default), `table`, `chart`, `formula`, `spotting`, `seal`
+## OCR Engines
+- **Primary**: OCR.space API (cloud, fast)
+- **Fallback**: EasyOCR (local, no API key needed)
 
 ## App Entry Point
 `app.main:app` - FastAPI application instance in `app/main.py`
+
+## Environment Variables
+- `OCR_SPACE_API_KEY` - Required for OCR.space API

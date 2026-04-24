@@ -7,17 +7,13 @@ requires-python = ">=3.12"
 dependencies = [
     "easyocr>=1.7.2",
     "fastapi[standard]>=0.136.0",
-    "openai>=2.32.0",
-    "paddleocr>=3.5.0",
-    "paddlepaddle>=3.3.1",
-    "paddlex[ocr]>=3.5.1",
     "pillow>=11.0.0",
     "pydantic-settings>=2.14.0",
     "pytest>=9.0.3",
     "python-dotenv>=1.2.2",
+    "requests>=2.31.0",
     "torch[cpu]>=2.11.0",
     "torchvision>=0.20.0",
-    "transformers>=5.5.4",
     "uvicorn>=0.45.0",
 ]
 
