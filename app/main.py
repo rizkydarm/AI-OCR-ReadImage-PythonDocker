@@ -18,7 +18,7 @@ load_dotenv()
 # Track startup time for health check
 START_TIME = time.time()
 
-# Initialize dual-engine OCR
+# Initialize dual-engine OCR (EasyOCR as primary, OCR.space as fallback)
 ocr_engine = DualOCREngine()
 
 

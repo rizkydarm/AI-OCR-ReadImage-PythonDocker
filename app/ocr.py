@@ -128,7 +128,6 @@ class OCRSpaceEngine:
                 error=str(e),
             )
 
-
 class EasyOCREngine:
     """Local EasyOCR engine for fallback."""
 
@@ -180,29 +179,31 @@ class EasyOCREngine:
 
 
 class DualOCREngine:
-    """Dual-engine OCR: OCR.space primary, EasyOCR fallback."""
+    """Dual-engine OCR: EasyOCR primary, OCR.space fallback."""
 
     def __init__(self) -> None:
         """Initialize both engines."""
-        self.primary = OCRSpaceEngine()
-        self.fallback = EasyOCREngine()
+        self.primary = EasyOCREngine()
+        self.fallback = OCRSpaceEngine()
 
     @property
     def primary_available(self) -> bool:
-        return self.primary.available
+        return True  # EasyOCR always available once loaded
 
     @property
     def fallback_available(self) -> bool:
-        return True  # EasyOCR always available once loaded
+        return self.fallback.available
 
     def process(self, image_path: Path | str) -> OCRResult:
         """Run OCR with automatic fallback."""
-        # Try primary first
-        if self.primary_available:
-            result = self.primary.process(image_path)
-            if result["success"]:
-                return result
+        # Try EasyOCR first
+        result = self.primary.process(image_path)
+        if result["success"]:
+            return result
 
-        # Fallback to EasyOCR
-        return self.fallback.process(image_path)
+        # Fallback to OCR.space API
+        if self.fallback_available:
+            return self.fallback.process(image_path)
+
+        return result  # Return EasyOCR result even if failed
 
