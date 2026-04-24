@@ -59,7 +59,7 @@ uv sync
 source .venv/bin/activate
 
 # Run development server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Docker Deployment

@@ -71,7 +71,7 @@ Always returns HTTP 200:
 
 ### Deployment
 - [ ] `uv sync` installs all dependencies without errors
-- [ ] `uvicorn app.main:app` starts server on port 8000
+- [ ] `uv run uvicorn app.main:app` starts server on port 8000
 - [ ] Docker image builds successfully
 - [ ] Container runs without privileged permissions
 - [ ] Health endpoint returns `model_loaded: true` within 15 seconds

@@ -89,7 +89,7 @@
 ```bash
 uv run main.py # Run python main.py
 uv sync                           # Install dependencies
-uvicorn app.main:app --reload     # Run dev server (port 8000)
+uv run uvicorn app.main:app --reload     # Run dev server (port 8000)
 curl -X POST http://localhost:8000/ocr -F "file=@image.jpg"  # Test OCR
 curl http://localhost:8000/health  # Health check
 ```
